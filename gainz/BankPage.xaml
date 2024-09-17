@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="gainz.BankPage"
+             Title="Exercise Bank">
+
+    <Grid>
+        <!-- CollectionView to display the list of exercises -->
+        <CollectionView x:Name="ExerciseList"
+                        ItemsSource="{Binding Exercises}"
+                        SelectionMode="Single"
+                        SelectionChanged="OnExerciseSelected">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <StackLayout Padding="10" Orientation="Horizontal">
+                        <Image Source="{Binding ImageUrl}" WidthRequest="24" HeightRequest="24" />
+                        <StackLayout Margin="15,0,0,0">
+                            <Label Text="{Binding Name}" FontSize="18" />
+                            <Label Text="{Binding Category}" FontSize="12" TextColor="Gray"/>
+                        </StackLayout>
+                    </StackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Floating Action Button at the bottom-right corner -->
+        <Button x:Name="AddExerciseButton"
+                Text="+"
+                WidthRequest="60"
+                HeightRequest="60"
+                BackgroundColor="Purple"
+                TextColor="White"
+                CornerRadius="30"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                Margin="20"
+                Clicked="OnAddExerciseClicked"/>
+    </Grid>
+</ContentPage>

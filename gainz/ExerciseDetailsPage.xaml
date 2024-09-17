@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="gainz.ExerciseDetailsPage"
+             Title="{Binding Name}">
+
+    <ScrollView>
+        <StackLayout Padding="20" Spacing="15">
+            <StackLayout Padding="10" Spacing="15" Orientation="Horizontal">
+                <!-- Image of the Exercise with TapGestureRecognizer -->
+                <Image Source="{Binding ImageUrl}" HeightRequest="24" Aspect="AspectFit">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnImageTapped" />
+                    </Image.GestureRecognizers>
+                </Image>
+
+                <!-- Title of the Exercise -->
+                <Entry Text="{Binding Name, Mode=TwoWay}" FontSize="24" />
+            </StackLayout>
+            
+            <!-- Category of the Exercise -->
+            <Label Text="{Binding Category}" FontSize="18"/>
+            <!-- <Entry Text="{Binding Category, Mode=TwoWay}" FontSize="18" /> -->
+
+
+            <!-- Description of the Exercise -->
+            <Editor Text="{Binding Description, Mode=TwoWay}" FontSize="16" />
+
+            <!-- Graph Placeholder (for future implementation) -->
+            <Label Text="Graph (Progress Tracker)" FontSize="18" FontAttributes="Bold"/>
+            <BoxView HeightRequest="200" BackgroundColor="LightGray"/>
+            <!-- Placeholder for Graph -->
+
+            <!-- Delete Exercise Button -->
+            <Button Text="Delete Exercise"
+                    TextColor="White"
+                    BackgroundColor="Red"
+                    Command="{Binding DeleteExerciseCommand}" />
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:local="clr-namespace:gainz"
+       x:Class="gainz.AppShell">
+
+    <!-- TabBar for the three main sections -->
+    <TabBar>
+        <!-- Bank Tab -->
+        <Tab Title="Bank" Icon="bank_icon.png">
+            <ShellContent ContentTemplate="{DataTemplate local:BankPage}" />
+        </Tab>
+
+        <!-- Workouts Tab -->
+        <Tab Title="Workouts" Icon="workouts_icon.png">
+            <ShellContent ContentTemplate="{DataTemplate local:WorkoutsPage}" />
+        </Tab>
+
+        <!-- History Tab -->
+        <Tab Title="History" Icon="history_icon.png">
+            <ShellContent ContentTemplate="{DataTemplate local:HistoryPage}" />
+        </Tab>
+    </TabBar>
+
+</Shell>
