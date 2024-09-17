@@ -6,6 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.Windows.Input;
+//using gainz.Models;
+using gainz.Services;
+using Microsoft.Maui.Controls;
+
 namespace gainz
 {
     public class ExerciseDetailsViewModel : INotifyPropertyChanged
@@ -95,10 +100,22 @@ namespace gainz
 
             if (confirmDelete && _exercises.Contains(_selectedExercise))
             {
-                // Logic to delete the exercise (remove from the data source)
-                _exercises.Remove(_selectedExercise);
-                // Notify that the exercise has been deleted, navigate back to BankPage, etc.
-                await Application.Current.MainPage.Navigation.PopAsync();
+                try
+                {
+                    // Remove from the SQLite database
+                    var db = DatabaseService.Connection;
+                    db.Delete(_selectedExercise);
+
+                    // Logic to delete the exercise (remove from the data source)
+                    _exercises.Remove(_selectedExercise);
+
+                    // Notify that the exercise has been deleted, navigate back to BankPage, etc.
+                    await Application.Current.MainPage.Navigation.PopAsync();
+                }
+                catch (Exception ex)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", $"Failed to delete exercise: {ex.Message}", "OK");
+                }
             }
         }
 

@@ -8,7 +8,7 @@
         <StackLayout Padding="20" Spacing="15">
             <StackLayout Padding="10" Spacing="15" Orientation="Horizontal">
                 <!-- Image of the Exercise with TapGestureRecognizer -->
-                <Image Source="{Binding ImageUrl}" HeightRequest="24" Aspect="AspectFit">
+                <Image Source="{Binding ImageUrl}" HeightRequest="60" Aspect="AspectFit">
                     <Image.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnImageTapped" />
                     </Image.GestureRecognizers>

@@ -1,6 +1,12 @@
 ﻿using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 
+// To get sqlite working
+using Microsoft.Maui;
+using Microsoft.Maui.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using SQLitePCL;
+
 namespace gainz
 {
     public static class MauiProgram
@@ -19,8 +25,10 @@ namespace gainz
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            // Initialize SQLitePCL provider
+            SQLitePCL.Batteries_V2.Init();
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();

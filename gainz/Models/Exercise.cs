@@ -5,11 +5,17 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using gainz.Services;
+using SQLite;
 
 namespace gainz
 {
     public class Exercise : INotifyPropertyChanged
     {
+        [PrimaryKey, AutoIncrement]
+        public int Id { get; set; }
+
+        //[MaxLength(100)]
         private string name;
         public string Name
         {
@@ -81,16 +87,34 @@ namespace gainz
 
         public BankViewModel()
         {
-            // Populate the list with sample data (replace with actual data later)
-            Exercises = new ObservableCollection<Exercise>
-            {
-                new Exercise { Name = "Bench Press", Category = "Chest", ImageUrl = "benchpress.png", Description = "A chest exercise..." },
-                new Exercise { Name = "Squat", Category = "Legs", ImageUrl = "squat.png", Description = "A leg exercise..." }
-            };
+            //// Populate the list with sample data (replace with actual data later)
+            //Exercises = new ObservableCollection<Exercise>
+            //{
+            //    new Exercise { Name = "Bench Press", Category = "Chest", ImageUrl = "benchpress.png", Description = "A chest exercise..." },
+            //    new Exercise { Name = "Squat", Category = "Legs", ImageUrl = "squat.png", Description = "A leg exercise..." }
+            //};
+
+            // Load exercises from the database
+            LoadExercisesFromDatabase();
+        }
+
+        private void LoadExercisesFromDatabase()
+        {
+            var db = DatabaseService.Connection;
+
+            // Read all exercises from the SQLite database
+            var exercisesFromDb = db.Table<Exercise>().ToList();
+
+            // Initialize the ObservableCollection with exercises from the database
+            Exercises = new ObservableCollection<Exercise>(exercisesFromDb);
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
         // INotifyPropertyChanged implementation here...
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 
 }

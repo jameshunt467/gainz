@@ -4,6 +4,14 @@ using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Storage;
 
+// Saving photo
+using System;
+using System.IO;
+using System.Threading.Tasks;
+using Microsoft.Maui.Media;
+using Microsoft.Maui.Storage;
+
+
 namespace gainz;
 
 public partial class ExerciseDetailsPage : ContentPage
@@ -46,14 +54,18 @@ public partial class ExerciseDetailsPage : ContentPage
 
             if (photo != null)
             {
-                // Save the photo file and get its path
-                var photoFile = await photo.SaveToFileAsync(FileSystem.Current.AppDataDirectory, "exercise_photo.jpg");
+                // Create a new file path to save the photo
+                string fileName = Path.Combine(FileSystem.Current.AppDataDirectory, $"{Path.GetRandomFileName()}.jpg");
 
-                if (photoFile != null)
+                // Save the photo to the file
+                using (var stream = await photo.OpenReadAsync())
+                using (var newFileStream = File.OpenWrite(fileName))
                 {
-                    // Update the ImageUrl property in the ViewModel with the new image path
-                    ((ExerciseDetailsViewModel)BindingContext).ImageUrl = photoFile.FullPath;
+                    await stream.CopyToAsync(newFileStream);
                 }
+
+                // Update the ImageUrl property in the ViewModel with the new image path
+                ((ExerciseDetailsViewModel)BindingContext).ImageUrl = fileName;
             }
         }
         catch (Exception ex)
@@ -61,6 +73,7 @@ public partial class ExerciseDetailsPage : ContentPage
             await DisplayAlert("Error", $"An error occurred: {ex.Message}", "OK");
         }
     }
+
 
     private async Task PickPhotoAsync()
     {
