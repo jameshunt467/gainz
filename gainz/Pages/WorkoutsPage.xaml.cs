@@ -1,4 +1,4 @@
-namespace gainz;
+namespace gainz.Pages;
 
 public partial class WorkoutsPage : ContentPage
 {

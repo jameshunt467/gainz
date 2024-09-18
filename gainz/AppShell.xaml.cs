@@ -1,4 +1,6 @@
-﻿namespace gainz
+﻿using gainz.Pages;
+
+namespace gainz
 {
     public partial class AppShell : Shell
     {

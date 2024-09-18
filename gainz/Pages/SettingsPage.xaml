@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="gainz.Pages.SettingsPage"
+             Title="Settings">
+
+    <StackLayout Padding="20" Spacing="15">
+        <!-- Manage Categories -->
+        <Button Text="Manage Categories" Clicked="OnManageCategoriesClicked" />
+
+        <!-- Clear Database -->
+        <Button Text="Clear Database" Clicked="OnClearDatabaseClicked" BackgroundColor="Red" TextColor="White" />
+
+        <!-- Add Sample Data -->
+        <Button Text="Add Sample Data" Clicked="OnAddSampleDataClicked" BackgroundColor="Green" TextColor="White" />
+    </StackLayout>
+    
+</ContentPage>

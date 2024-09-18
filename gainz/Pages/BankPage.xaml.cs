@@ -1,6 +1,6 @@
 //using AndroidX.Lifecycle;
 
-namespace gainz;
+namespace gainz.Pages;
 
 public partial class BankPage : ContentPage
 {
@@ -31,7 +31,9 @@ public partial class BankPage : ContentPage
         //ExerciseList.ItemsSource = _viewModel.Exercises;
 
         // Refresh exercises list from the database when the page appears
-        _viewModel = new BankViewModel();
+        //_viewModel = new BankViewModel();
+        // Refresh exercises list from the database when the page appears
+        _viewModel.LoadExercisesFromDatabase();
         BindingContext = _viewModel;
     }
 

@@ -10,9 +10,11 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Maui.Media;
 using Microsoft.Maui.Storage;
+using gainz.ViewModels;
+using gainz.Services;
 
 
-namespace gainz;
+namespace gainz.Pages;
 
 public partial class ExerciseDetailsPage : ContentPage
 {
@@ -27,6 +29,23 @@ public partial class ExerciseDetailsPage : ContentPage
         // Create the ViewModel and pass the exercises collection and selected exercise
         var viewModel = new ExerciseDetailsViewModel(exercises, selectedExercise);
         BindingContext = viewModel;
+    }
+    private void OnNewCategoryTextChanged(object sender, TextChangedEventArgs e)
+    {
+        // If a new category is being typed, clear the Picker selection
+        if (!string.IsNullOrWhiteSpace(NewCategoryEntry.Text))
+        {
+            CategoryPicker.SelectedIndex = -1;
+        }
+    }
+
+    private void OnCategorySelected(object sender, EventArgs e)
+    {
+        // If a category is selected from the Picker, clear the new category entry
+        if (CategoryPicker.SelectedIndex != -1)
+        {
+            NewCategoryEntry.Text = string.Empty;
+        }
     }
 
     private async void OnImageTapped(object sender, EventArgs e)
@@ -73,7 +92,6 @@ public partial class ExerciseDetailsPage : ContentPage
             await DisplayAlert("Error", $"An error occurred: {ex.Message}", "OK");
         }
     }
-
 
     private async Task PickPhotoAsync()
     {

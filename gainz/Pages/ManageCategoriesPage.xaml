@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="gainz.Pages.ManageCategoriesPage"
+             Title="Manage Categories">
+
+    <StackLayout Padding="20" Spacing="15">
+        <!-- Entry to add new category -->
+        <Entry x:Name="NewCategoryEntry" Placeholder="Enter new category name" />
+
+        <!-- Button to add new category -->
+        <Button Text="Add Category" Clicked="OnAddCategoryClicked" />
+
+        <!-- ListView to display categories -->
+        <CollectionView x:Name="CategoriesList" 
+                        ItemsSource="{Binding Categories}"
+                        VerticalOptions="FillAndExpand" 
+                        SelectionMode="None" >
+            <!-- Optional to disable selection if not needed -->
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <StackLayout Orientation="Horizontal" Padding="10">
+                        <Label Text="{Binding Name}" FontSize="18" VerticalOptions="Center" />
+                        <Button Text="Delete" BackgroundColor="Red" TextColor="White" Clicked="OnDeleteCategoryClicked" CommandParameter="{Binding .}" HorizontalOptions="EndAndExpand" Margin="0,0,10,0" />
+                    </StackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </StackLayout>
+    
+</ContentPage>

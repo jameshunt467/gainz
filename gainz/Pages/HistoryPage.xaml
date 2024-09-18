@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="gainz.Pages.HistoryPage"
+             Title="History">
+
+    <!-- Toolbar with Settings Icon -->
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Settings" IconImageSource="cog_icon.png" Order="Primary" Priority="0" Clicked="OnSettingsClicked" />
+    </ContentPage.ToolbarItems>
+
+    <StackLayout>
+        <!-- Your existing content for History -->
+    </StackLayout>
+</ContentPage>
