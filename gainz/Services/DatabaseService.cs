@@ -8,6 +8,7 @@ using System.IO;
 using SQLite;
 using Microsoft.Maui.Storage;
 using gainz.Models;
+using gainz.JoinTable;
 
 namespace gainz.Services
 {
@@ -39,6 +40,11 @@ namespace gainz.Services
                     _connection = new SQLiteConnection(DatabaseFile);
                     _connection.CreateTable<Exercise>(); // Use the Exercise model
                     _connection.CreateTable<Category>();
+                    _connection.CreateTable<Workout>();
+                    _connection.CreateTable<ExerciseWorkout>();
+
+                    // Enable foreign key support (if supported by the SQLite version)
+                    _connection.Execute("PRAGMA foreign_keys = ON;");
                 }
                 return _connection;
             }
@@ -64,6 +70,42 @@ namespace gainz.Services
             Connection.Delete(category);
         }
 
+        public static Category GetCategoryByName(string name)
+        {
+            return Connection.Table<Category>().FirstOrDefault(c => c.Name == name);
+        }
+        public static Category GetCategoryById(int id)
+        {
+            return Connection.Table<Category>().FirstOrDefault(c => c.Id == id);
+        }
+
         // end of CATEGORY METHODS
+
+        // start of ExerciseWorkout
+
+        public static Workout GetWorkoutWithExercises(int workoutId)
+        {
+            var workout = Connection.Table<Workout>().FirstOrDefault(w => w.Id == workoutId);
+
+            if (workout != null)
+            {
+                // Get the exercise IDs associated with this workout
+                var exerciseIds = Connection.Table<ExerciseWorkout>()
+                    .Where(ew => ew.WorkoutId == workoutId)
+                    .Select(ew => ew.ExerciseId)
+                    .ToList();
+
+                // Retrieve the actual exercise objects
+                var exercises = Connection.Table<Exercise>()
+                    .Where(e => exerciseIds.Contains(e.Id))
+                    .ToList();
+
+                workout.Exercises = exercises;
+            }
+
+            return workout;
+        }
+
+        // end of ExerciseWorkout
     }
 }

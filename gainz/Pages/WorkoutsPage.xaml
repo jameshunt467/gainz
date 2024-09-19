@@ -1,11 +1,45 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="gainz.Pages.WorkoutsPage">
-    <ContentPage.Content>
-        <VerticalStackLayout>
-            <!-- Content for the Workouts page -->
-            <Label Text="My Workouts" HorizontalOptions="Center" VerticalOptions="Center" />
-        </VerticalStackLayout>
-    </ContentPage.Content>
+             x:Class="gainz.Pages.WorkoutsPage"
+             Title="Workouts">
+
+    <!-- Grid layout to allow for overlay positioning -->
+    <Grid>
+        <!-- CollectionView for displaying workouts -->
+        <CollectionView ItemsSource="{Binding Workouts}" SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <!-- Wrap the frame in a grid and add a TapGestureRecognizer to make the entire item clickable -->
+                    <Grid Padding="10">
+                        <Frame BorderColor="LightGray" CornerRadius="10" Padding="10" HasShadow="True">
+                            <Grid>
+                                <Grid.GestureRecognizers>
+                                    <!-- TapGestureRecognizer for handling tap events -->
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.WorkoutTappedCommand}" 
+                                                          CommandParameter="{Binding .}" />
+                                </Grid.GestureRecognizers>
+
+                                <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold" VerticalOptions="Center" />
+                            </Grid>
+                        </Frame>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Floating Action Button positioned at bottom-right -->
+        <Button x:Name="AddWorkoutButton"
+                Text="+"
+                WidthRequest="60"
+                HeightRequest="60"
+                BackgroundColor="Purple"
+                TextColor="White"
+                CornerRadius="30"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                Margin="20"
+                Clicked="OnAddWorkoutClicked"/>
+    </Grid>
+    
 </ContentPage>

@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 using System.Windows.Input;
+using gainz.Models;
+
 
 //using gainz.Models;
 using gainz.Services;
@@ -101,15 +103,15 @@ namespace gainz.ViewModels
             }
         }
 
-        public string Category
+        public int CategoryId
         {
-            get => Exercise.Category;
+            get => Exercise.CategoryId;
             set
             {
-                if (Exercise.Category != value)
+                if (Exercise.CategoryId != value)
                 {
-                    Exercise.Category = value;
-                    OnPropertyChanged(nameof(Category));
+                    Exercise.CategoryId = value;
+                    OnPropertyChanged(nameof(CategoryId));
                 }
             }
         }
@@ -148,13 +150,14 @@ namespace gainz.ViewModels
             Categories = new ObservableCollection<string>(categoriesFromDb);
 
             // If the current category is not in the list, set it to "Uncategorized"
-            if (!string.IsNullOrWhiteSpace(_selectedExercise.Category) && !Categories.Contains(_selectedExercise.Category))
+            var currentCategory = DatabaseService.GetCategoryById(_selectedExercise.CategoryId)?.Name;
+            if (!string.IsNullOrWhiteSpace(currentCategory) && !Categories.Contains(currentCategory))
             {
-                _selectedExercise.Category = "Uncategorized";
+                currentCategory = "Uncategorized";
             }
 
             // Set the current category in the Picker if it exists
-            SelectedCategory = Categories.Contains(_selectedExercise.Category) ? _selectedExercise.Category : null;
+            SelectedCategory = Categories.Contains(currentCategory) ? currentCategory : null;
         }
 
         private void LoadExerciseDetails()
@@ -177,22 +180,37 @@ namespace gainz.ViewModels
                 return;
             }
 
-            string categoryToSave = !string.IsNullOrWhiteSpace(newCategory) ? newCategory : selectedCategory;
+            int categoryIdToSave;
 
-            if (!string.IsNullOrWhiteSpace(newCategory) && !Categories.Contains(newCategory))
+            if (!string.IsNullOrWhiteSpace(newCategory))
             {
-                // Add new category to database and Picker
-                DatabaseService.AddCategory(newCategory);
-                Categories.Add(newCategory);
+                // Add new category to database if it doesn't exist
+                if (!Categories.Contains(newCategory))
+                {
+                    var newCategoryObj = new Category { Name = newCategory };
+                    DatabaseService.Connection.Insert(newCategoryObj);
+                    Categories.Add(newCategory);
+                    categoryIdToSave = newCategoryObj.Id; // Get the ID of the newly inserted category
+                }
+                else
+                {
+                    // Retrieve the ID of the existing category
+                    categoryIdToSave = DatabaseService.GetCategoryByName(newCategory).Id;
+                }
+            }
+            else
+            {
+                // Retrieve the ID of the selected category
+                categoryIdToSave = DatabaseService.GetCategoryByName(selectedCategory).Id;
             }
 
             // Update the selected exercise
             _selectedExercise.Name = name;
             _selectedExercise.Description = description;
-            _selectedExercise.Category = categoryToSave;
+            _selectedExercise.CategoryId = categoryIdToSave;
 
             // Debugging: Output the updated exercise details
-            Console.WriteLine($"Updated Exercise: Name = {_selectedExercise.Name}, Description = {_selectedExercise.Description}, Category = {_selectedExercise.Category}");
+            Console.WriteLine($"Updated Exercise: Name = {_selectedExercise.Name}, Description = {_selectedExercise.Description}, Category = {_selectedExercise.CategoryId}");
 
             // Update the exercise in the SQLite database
             DatabaseService.Connection.Update(_selectedExercise);

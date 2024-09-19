@@ -136,13 +136,28 @@ public partial class AddExercisePage : ContentPage
             return;
         }
 
-        string categoryToSave = !string.IsNullOrWhiteSpace(newCategory) ? newCategory : selectedCategory;
+        int categoryIdToSave;
 
-        if (!string.IsNullOrWhiteSpace(newCategory) && !Categories.Contains(newCategory))
+        if (!string.IsNullOrWhiteSpace(newCategory))
         {
-            // Add new category to database and Picker
-            DatabaseService.AddCategory(newCategory);
-            Categories.Add(newCategory);
+            // Add new category to database if it doesn't exist
+            if (!Categories.Contains(newCategory))
+            {
+                var newCategoryObj = new Category { Name = newCategory };
+                DatabaseService.Connection.Insert(newCategoryObj);
+                Categories.Add(newCategory);
+                categoryIdToSave = newCategoryObj.Id; // Get the ID of the newly inserted category
+            }
+            else
+            {
+                // Retrieve the ID of the existing category
+                categoryIdToSave = DatabaseService.GetCategoryByName(newCategory).Id;
+            }
+        }
+        else
+        {
+            // Retrieve the ID of the selected category
+            categoryIdToSave = DatabaseService.GetCategoryByName(selectedCategory).Id;
         }
 
         // Create a new Exercise object
@@ -150,7 +165,7 @@ public partial class AddExercisePage : ContentPage
         {
             Name = name,
             Description = description,
-            Category = categoryToSave,
+            CategoryId = categoryIdToSave,
             ImageUrl = _selectedImagePath // Use the selected image path
         };
 

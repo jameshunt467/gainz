@@ -44,17 +44,19 @@ namespace gainz
             }
         }
 
-        private string category;
-        public string Category
+        // Reference to Category ID instead of storing name directly
+        public int CategoryId { get; set; }
+
+        // New property to hold the category name
+        private string _categoryName;
+        [Ignore]
+        public string CategoryName
         {
-            get => category;
+            get => _categoryName;
             set
             {
-                if (category != value)
-                {
-                    category = value;
-                    OnPropertyChanged(nameof(Category));
-                }
+                _categoryName = value;
+                OnPropertyChanged(nameof(CategoryName));
             }
         }
 
@@ -80,85 +82,4 @@ namespace gainz
             }
         }
     }
-
-    public class BankViewModel : INotifyPropertyChanged
-    {
-        public ObservableCollection<Exercise> Exercises { get; set; }
-
-        public BankViewModel()
-        {
-            // Load exercises from the database
-            LoadExercisesFromDatabase();
-        }
-
-        public void LoadExercisesFromDatabase()
-        {
-            try
-            {
-                var db = DatabaseService.Connection;
-
-                // Clear the collection first to avoid duplicates
-                if (Exercises == null)
-                {
-                    Exercises = new ObservableCollection<Exercise>();
-                }
-                Exercises.Clear();
-
-                // Read all exercises from the SQLite database
-                var exercisesFromDb = db.Table<Exercise>().ToList();
-
-                if (exercisesFromDb == null)
-                {
-                    Console.WriteLine("Error: No exercises found in the database.");
-                    return; // Exit early if the database query failed
-                }
-
-                // Get all categories from the database to check if they still exist
-                var existingCategories = DatabaseService.GetAllCategories().Select(c => c.Name).ToHashSet();
-
-                if (existingCategories == null)
-                {
-                    Console.WriteLine("Error: No categories found in the database.");
-                    return; // Exit early if the category query failed
-                }
-
-                // Add each exercise to the ObservableCollection
-                foreach (var exercise in exercisesFromDb)
-                {
-                    if (exercise == null)
-                    {
-                        Console.WriteLine("Error: Encountered a null exercise in the database.");
-                        continue; // Skip any null exercises
-                    }
-
-                    // If the category does not exist, set it to "Uncategorized"
-                    if (!string.IsNullOrWhiteSpace(exercise.Category) && !existingCategories.Contains(exercise.Category))
-                    {
-                        exercise.Category = "Uncategorized";
-                        db.Update(exercise); // Update the exercise in the database to save this change
-                    }
-
-                    Exercises.Add(exercise);
-                }
-            }
-            catch (Exception ex)
-            {
-                // Log the exception message and stack trace for debugging
-                Console.WriteLine($"Error loading exercises: {ex.Message}");
-                Console.WriteLine(ex.StackTrace);
-
-                // Display error message to the user (optional)
-                Application.Current.MainPage.DisplayAlert("Error", "Failed to load exercises.", "OK");
-            }
-        }
-
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        // INotifyPropertyChanged implementation here...
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
-
 }

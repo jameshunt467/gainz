@@ -1,5 +1,7 @@
 //using AndroidX.Lifecycle;
 
+using gainz.ViewModels;
+
 namespace gainz.Pages;
 
 public partial class BankPage : ContentPage
@@ -53,6 +55,7 @@ public partial class BankPage : ContentPage
     private async void OnAddExerciseClicked(object sender, EventArgs e)
     {
         // Logic to open a new page or modal to create a new exercise
-        await Navigation.PushAsync(new AddExercisePage());
+        //await Navigation.PushAsync(new AddExercisePage());
+        await Shell.Current.GoToAsync($"addexercise");
     }
 }

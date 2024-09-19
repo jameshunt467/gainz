@@ -8,5 +8,10 @@
 
             MainPage = new AppShell();
         }
+
+        public static class Constants
+        {
+            public const string LogTag = "gainzLog";
+        }
     }
 }

@@ -11,12 +11,13 @@
                         SelectionMode="Single"
                         SelectionChanged="OnExerciseSelected">
             <CollectionView.ItemTemplate>
+                <!-- Interacting with an <Exercise> object -->
                 <DataTemplate>
                     <StackLayout Padding="10" Orientation="Horizontal">
                         <Image Source="{Binding ImageUrl}" WidthRequest="50" HeightRequest="50" />
                         <StackLayout Margin="15,0,0,0">
                             <Label Text="{Binding Name}" FontSize="19" />
-                            <Label Text="{Binding Category}" FontSize="14" TextColor="Gray"/>
+                            <Label Text="{Binding CategoryName}" FontSize="14" TextColor="Gray"/>
                         </StackLayout>
                     </StackLayout>
                 </DataTemplate>
