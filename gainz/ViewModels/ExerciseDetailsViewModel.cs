@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace gainz.ViewModels
 {
     public class ExerciseDetailsViewModel : INotifyPropertyChanged
     {
-        private ObservableCollection<Exercise> _exercises;  // Same as in ExerciseDetailsPage
+        //private ObservableCollection<Exercise> _exercises;  // Same as in ExerciseDetailsPage
         private Exercise _selectedExercise; // Same as in ExerciseDetailsPage
         private string _newCategory;
         private string _selectedCategory;
@@ -130,10 +131,13 @@ namespace gainz.ViewModels
         }
 
         // Same constructor as in ExerciseDetailsPage - we need to pass the selected exercise and the list of exercises
-        public ExerciseDetailsViewModel(ObservableCollection<Exercise> exercises, Exercise selectedExercise)
+        public ExerciseDetailsViewModel(int id)
         {
-            _exercises = exercises;
-            _selectedExercise = selectedExercise;
+            // Fetch exercises from the database
+            //var exercisesFromDb = DatabaseService.GetAllExercises();
+            //_exercises = new ObservableCollection<Exercise>(exercisesFromDb);
+
+            _selectedExercise = DatabaseService.GetExerciseWithId(id);
 
             LoadCategories(); // Load categories for autofill
             LoadExerciseDetails(); // Load selected exercise details
@@ -215,17 +219,18 @@ namespace gainz.ViewModels
             // Update the exercise in the SQLite database
             DatabaseService.Connection.Update(_selectedExercise);
 
-            await Application.Current.MainPage.Navigation.PopAsync();
+            await Shell.Current.GoToAsync("..");
         }
 
         private async void OnDeleteExercise()
         {
+            Debug.WriteLine($"Attempting to delete {Exercise.Name}");
             bool confirmDelete = await Application.Current.MainPage.DisplayAlert(
                 "Confirm Delete",
                 $"Are you sure you want to delete the exercise: {Exercise.Name}?",
                 "Yes", "No");
 
-            if (confirmDelete && _exercises.Contains(_selectedExercise))
+            if (confirmDelete)
             {
                 try
                 {
@@ -234,10 +239,12 @@ namespace gainz.ViewModels
                     db.Delete(_selectedExercise);
 
                     // Logic to delete the exercise (remove from the data source)
-                    _exercises.Remove(_selectedExercise);
+                    //_exercises.Remove(_selectedExercise);
 
-                    // Notify that the exercise has been deleted, navigate back to BankPage, etc.
-                    await Application.Current.MainPage.Navigation.PopAsync();
+                    Debug.WriteLine($"Going back to BankPage now");
+
+                    // Notify that the exercise has been deleted, navigate back to BankPage, etc.vigate back to BankPage
+                    await Shell.Current.GoToAsync("..");
                 }
                 catch (Exception ex)
                 {

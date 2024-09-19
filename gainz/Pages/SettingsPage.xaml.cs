@@ -15,7 +15,7 @@ public partial class SettingsPage : ContentPage
     private async void OnManageCategoriesClicked(object sender, EventArgs e)
     {
         // Navigate to a page where users can manage categories 
-        await Navigation.PushAsync(new ManageCategoriesPage());
+        await Shell.Current.GoToAsync($"managecategories");
     }
 
     private async void OnClearDatabaseClicked(object sender, EventArgs e)

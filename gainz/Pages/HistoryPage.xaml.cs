@@ -10,6 +10,6 @@ public partial class HistoryPage : ContentPage
     // Navigate to the SettingsPage when the settings icon is clicked
     private async void OnSettingsClicked(object sender, EventArgs e)
     {
-        await Navigation.PushAsync(new SettingsPage());
+        await Shell.Current.GoToAsync($"settingspage");
     }
 }

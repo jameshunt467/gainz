@@ -107,5 +107,20 @@ namespace gainz.Services
         }
 
         // end of ExerciseWorkout
+
+        // start of EXERCISES
+
+        // Method to get all exercises
+        public static List<Exercise> GetAllExercises()
+        {
+            return Connection.Table<Exercise>().ToList();
+        }
+
+        public static Exercise GetExerciseWithId(int id)
+        {
+            return Connection.Table<Exercise>().FirstOrDefault(e => e.Id == id);
+        }
+
+        // end of EXERCISES
     }
 }

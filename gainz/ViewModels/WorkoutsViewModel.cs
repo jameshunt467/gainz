@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,8 +32,10 @@ namespace gainz.ViewModels
                 // Navigate to the WorkoutDetailsPage using Shell routing and pass the workout ID as a parameter
                 try
                 {
-                    //await Shell.Current.GoToAsync($"//workoutdetails?WorkoutId={workout.Id}");
-                    await Application.Current.MainPage.Navigation.PushAsync(new WorkoutDetailsPage(workout.Id));
+                    await Shell.Current.GoToAsync("workoutdetails", new Dictionary<string, object>
+                    {
+                        { "workoutId", workout.Id }
+                    });
                 }
                 catch (Exception ex)
                 {
@@ -55,10 +58,10 @@ namespace gainz.ViewModels
             {
                 Workouts.Add(workout);
                 // Debug code to verify that the exercises are being loaded
-                System.Diagnostics.Debug.WriteLine($"[{Constants.LogTag}] Loaded Workout: {workout.Name}, Description: {workout.Description}");
+                Debug.WriteLine($"[{Constants.LogTag}] Loaded Workout: {workout.Name}, Description: {workout.Description}");
             }
             // Output the number of fetched workouts
-            System.Diagnostics.Debug.WriteLine($"[{Constants.LogTag}] Finished loading workouts. Total count: {savedWorkouts.Count}");
+            Debug.WriteLine($"[{Constants.LogTag}] Finished loading workouts. Total count: {savedWorkouts.Count}");
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

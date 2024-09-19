@@ -12,24 +12,40 @@ using Microsoft.Maui.Media;
 using Microsoft.Maui.Storage;
 using gainz.ViewModels;
 using gainz.Services;
+using System.Diagnostics;
 
 
 namespace gainz.Pages;
 
+[QueryProperty(nameof(ExerciseId), "exerciseId")]
 public partial class ExerciseDetailsPage : ContentPage
 {
-    private ObservableCollection<Exercise> _exercises;  // This is so that we can delete the exercise from the BankPage list
+    //private ObservableCollection<Exercise> _exercises;  // This is so that we can delete the exercise from the BankPage list
     private Exercise _selectedExercise;
+    public  int ExerciseId { get; set; }
 
-    public ExerciseDetailsPage(ObservableCollection<Exercise> exercises, Exercise selectedExercise)
+    public ExerciseDetailsPage()
     {
         InitializeComponent();
-        _exercises = exercises;
-        _selectedExercise = selectedExercise;
-        // Create the ViewModel and pass the exercises collection and selected exercise
-        var viewModel = new ExerciseDetailsViewModel(exercises, selectedExercise);
-        BindingContext = viewModel;
     }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+
+        if (ExerciseId != 0)
+        {
+            // Load the exercise details here
+            _selectedExercise = DatabaseService.GetExerciseWithId(ExerciseId);
+            var viewModel = new ExerciseDetailsViewModel(ExerciseId);
+            BindingContext = viewModel;
+        }
+        else
+        {
+            Debug.WriteLine("OnAppearing: Invalid ExerciseId received.");
+        }
+    }
+
     private void OnNewCategoryTextChanged(object sender, TextChangedEventArgs e)
     {
         // If a new category is being typed, clear the Picker selection

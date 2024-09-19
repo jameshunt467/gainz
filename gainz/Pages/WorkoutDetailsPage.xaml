@@ -1,97 +1,104 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="gainz.Pages.WorkoutDetailsPage"
-             Title="{Binding WorkoutName}">
-    
-    <ContentPage.Content>
-        <Grid Padding="20" RowSpacing="10">
-            <!-- Title and Description -->
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+             xmlns:local="clr-namespace:gainz.ViewModels"
+             x:Class="gainz.Pages.WorkoutDetailsPage">
 
-            <!-- Workout Name as Title -->
-            <Label Text="{Binding WorkoutName}" 
-                   FontSize="Large" 
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center"
-                   Grid.Row="0" />
-
-            <!-- Workout Description -->
-            <Label Text="{Binding WorkoutDescription}" 
-                   FontSize="Medium" 
-                   HorizontalOptions="Center"
-                   Grid.Row="1" />
-
-            <!-- Start and Delete Buttons -->
-            <Grid Grid.Row="2" ColumnSpacing="10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*" />
-                    <!-- Start Button -->
-                    <ColumnDefinition Width="*" />
-                    <!-- Delete Button -->
-                </Grid.ColumnDefinitions>
-
-                <!-- Start Button -->
-                <Button Text="Start Workout" 
-                        BackgroundColor="Green" 
-                        TextColor="White" 
-                        Command="{Binding StartWorkoutCommand}"
-                        Grid.Column="0" />
-
-                <!-- Delete Button -->
-                <Button Text="Delete Workout" 
-                        BackgroundColor="Red" 
-                        TextColor="White" 
-                        Command="{Binding DeleteWorkoutCommand}"
-                        Grid.Column="1" />
-            </Grid>
-
+    <Grid Padding="20" RowSpacing="10">
+        <!-- Define rows for the layout -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <!-- Title -->
+            <RowDefinition Height="Auto" />
+            <!-- Description -->
+            <RowDefinition Height="Auto" />
+            <!-- Buttons -->
+            <RowDefinition Height="*" />
             <!-- List of Exercises -->
-            <CollectionView Grid.Row="3" ItemsSource="{Binding Exercises}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <SwipeView>
-                            <SwipeView.RightItems>
-                                <SwipeItems>
-                                    <SwipeItem Text="Delete"
-                                               BackgroundColor="Red"
-                                               Command="{Binding DeleteExerciseCommand}"
-                                               CommandParameter="{Binding .}" />
-                                </SwipeItems>
-                            </SwipeView.RightItems>
-                            <Grid Padding="10" BackgroundColor="White">
-                                <Label Text="{Binding Name}"
-                                       FontSize="Medium"
-                                       VerticalOptions="Center"
-                                       HorizontalOptions="StartAndExpand" />
-                                <Label Text="{Binding Description}"
-                                       FontSize="Small"
-                                       VerticalOptions="Center"
-                                       HorizontalOptions="EndAndExpand" />
-                            </Grid>
-                        </SwipeView>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+        </Grid.RowDefinitions>
 
-            <!-- Floating Action Button -->
-            <Button Text="+"
-                    FontSize="24"
-                    CornerRadius="30"
-                    WidthRequest="60"
-                    HeightRequest="60"
-                    BackgroundColor="DodgerBlue"
-                    TextColor="White"
-                    VerticalOptions="End"
-                    HorizontalOptions="End"
-                    Margin="20"
-                    Command="{Binding AddExerciseCommand}" />
+        <!-- Workout Name as Title -->
+        <Label Text="{Binding WorkoutName}" 
+               FontSize="Large" 
+               FontAttributes="Bold"
+               HorizontalOptions="Center"
+               Grid.Row="0" />
+
+        <!-- Workout Description -->
+        <Label Text="{Binding WorkoutDescription}" 
+               FontSize="Medium" 
+               HorizontalOptions="Center"
+               Grid.Row="1" />
+
+        <!-- Start and Delete Buttons -->
+        <Grid Grid.Row="2" ColumnSpacing="10" HorizontalOptions="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="4*" />
+                <!-- Start Button -->
+                <ColumnDefinition Width="*" />
+                <!-- Delete Button -->
+            </Grid.ColumnDefinitions>
+
+            <!-- Start Button -->
+            <Button Text="Start Workout" 
+                    BackgroundColor="Green" 
+                    TextColor="White" 
+                    Command="{Binding StartWorkoutCommand}"
+                    Grid.Column="0" />
+
+            <!-- Delete Button -->
+            <Button Text="Delete Workout" 
+                    BackgroundColor="Red" 
+                    TextColor="White" 
+                    Command="{Binding DeleteWorkoutCommand}"
+                    Grid.Column="1" />
         </Grid>
-    </ContentPage.Content>
-    
+
+        <!-- List of Exercises -->
+        <CollectionView Grid.Row="3" ItemsSource="{Binding Exercises}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <SwipeView>
+                        <SwipeView.RightItems>
+                            <SwipeItems>
+                                <SwipeItem Text="Delete"
+                                           BackgroundColor="Red"
+                                           Command="{Binding Source={RelativeSource AncestorType={x:Type local:WorkoutDetailsViewModel}}, Path=DeleteExerciseCommand}"
+                                           CommandParameter="{Binding .}" />
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+                        <Grid Padding="10" BackgroundColor="White">
+                            <Label Text="{Binding Name}"
+                                   FontSize="Medium"
+                                   VerticalOptions="Center"
+                                   HorizontalOptions="StartAndExpand" />
+                            <Label Text="{Binding Description}"
+                                   FontSize="Small"
+                                   VerticalOptions="Center"
+                                   HorizontalOptions="EndAndExpand" />
+                        </Grid>
+                    </SwipeView>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+            <!-- Footer template for adding new exercise -->
+            <CollectionView.Footer>
+                <Grid Padding="20">
+                    <Frame CornerRadius="10" Padding="6" BackgroundColor="LightGray">
+                        <Grid VerticalOptions="CenterAndExpand" HorizontalOptions="FillAndExpand">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding AddExerciseCommand}" />
+                            </Grid.GestureRecognizers>
+                            <Label Text="+" 
+                                   FontSize="24" 
+                                   VerticalOptions="Center" 
+                                   HorizontalOptions="Center"
+                                   TextColor="Black" />
+                        </Grid>
+                    </Frame>
+                </Grid>
+            </CollectionView.Footer>
+        </CollectionView>
+    </Grid>
+
 </ContentPage>

@@ -15,12 +15,6 @@ public partial class BankPage : ContentPage
         _viewModel = new BankViewModel();
         // Set the BindingContext so that the XAML can bind to the ViewModel
         BindingContext = _viewModel;
-
-        // Subscribe to the "ExerciseAdded" message to refresh the list (optional)
-        //MessagingCenter.Subscribe<AddExercisePage, Exercise>(this, "ExerciseAdded", (sender, exercise) =>
-        //{
-        //    _viewModel.Exercises.Add(exercise);
-        //});
     }
 
     // Force refresh the page so images load
@@ -43,10 +37,20 @@ public partial class BankPage : ContentPage
     {
         if (e.CurrentSelection.Count > 0)
         {
-            // Navigate to a detailed view (to be implemented)
+            // Navigate to a detailed view
             var selectedExercise = (Exercise)e.CurrentSelection.FirstOrDefault();
             // Navigate to the ExerciseDetailsPage and pass the selectedExercise
-            await Navigation.PushAsync(new ExerciseDetailsPage(_viewModel.Exercises, selectedExercise));
+            try
+            {
+                await Shell.Current.GoToAsync("exercisedetails", new Dictionary<string, object>
+                {
+                    { "exerciseId", selectedExercise.Id }
+                });
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", "Cannot navigate. " + ex.InnerException.Message, "OK");
+            }
             // Clear the selection after navigation
             ((CollectionView)sender).SelectedItem = null;
         }

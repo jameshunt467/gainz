@@ -175,8 +175,5 @@ public partial class AddExercisePage : ContentPage
 
         // Go back to the previous page
         await Navigation.PopAsync();
-
-        // Notify the BankPage to refresh (optional, depending on the approach)
-        //MessagingCenter.Send(this, "ExerciseAdded", newExercise);
     }
 }
