@@ -75,11 +75,11 @@ namespace gainz.ViewModels
                 return;
             }
 
-            // Create new workout in the database (example)
+            // Create new workout in the database
             var workout = new Workout
             {
                 Name = workoutName,
-                //Exercises = selectedExercises // Assuming you have a relationship between Workout and Exercise
+                //Exercises = selectedExercises // Assuming we have a relationship between Workout and Exercise
                 Description = WorkoutDescription
             };
 

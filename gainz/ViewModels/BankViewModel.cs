@@ -81,7 +81,7 @@ namespace gainz.ViewModels
                 Console.WriteLine($"Error loading exercises: {ex.Message}");
                 Console.WriteLine(ex.StackTrace);
 
-                // Display error message to the user (optional)
+                // Display error message to the user (DEBUG)
                 Application.Current.MainPage.DisplayAlert("Error", "Failed to load exercises.", "OK");
             }
         }
