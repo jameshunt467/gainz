@@ -107,8 +107,8 @@ namespace gainz.ViewModels
 
         private async void AddExercise()
         {
-            // Logic to add a new exercise to the workout
-            await Application.Current.MainPage.DisplayAlert("Add Exercise", "Add exercise logic here.", "OK");
+            // Navigate to ExerciseSelectionPage and pass the workout ID
+            await Shell.Current.GoToAsync($"exerciseselection?workoutId={WorkoutId}");
         }
 
         // Implement the property changed notification and command logic here

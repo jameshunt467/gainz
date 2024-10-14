@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="gainz.Pages.ExerciseSelectionPage"
+             Title="Select Exercises">
+    <StackLayout Padding="20">
+        <Label Text="Select Exercises to Add" 
+               FontSize="Large" 
+               FontAttributes="Bold" 
+               HorizontalOptions="Center" />
+
+        <!-- CollectionView for displaying available exercises -->
+        <CollectionView ItemsSource="{Binding AvailableExercises}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <StackLayout Orientation="Horizontal" Padding="10">
+                        <CheckBox IsChecked="{Binding IsSelected}" VerticalOptions="Center" />
+                        <Label Text="{Binding Exercise.Name}" FontSize="Medium" VerticalOptions="Center" />
+                    </StackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Button to confirm selection -->
+        <Button Text="Add Selected Exercises" 
+                Command="{Binding AddSelectedExercisesCommand}" 
+                BackgroundColor="Green" 
+                TextColor="White" 
+                HorizontalOptions="FillAndExpand" 
+                Margin="0,20,0,0" />
+    </StackLayout>
+</ContentPage>

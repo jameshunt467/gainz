@@ -107,28 +107,6 @@ namespace gainz.ViewModels
         }
     }
 
-    // Model for a selectable exercise
-    public class SelectableExercise : INotifyPropertyChanged
-    {
-        public Exercise Exercise { get; set; }
-        private bool _isSelected;
-
-        public bool IsSelected
-        {
-            get => _isSelected;
-            set
-            {
-                _isSelected = value;
-                OnPropertyChanged(nameof(IsSelected));
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
 
     // Model for grouping exercises by category
     public class ExerciseGroup
