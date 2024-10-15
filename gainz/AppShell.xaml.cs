@@ -22,6 +22,7 @@ namespace gainz
             Routing.RegisterRoute("workoutdetails", typeof(WorkoutDetailsPage));
             Routing.RegisterRoute("exerciseselection", typeof(ExerciseSelectionPage));
             Routing.RegisterRoute("createworkout", typeof(CreateWorkoutPage));
+            Routing.RegisterRoute("workoutinprogress", typeof(WorkoutInProgress));
 
             //Routing.RegisterRoute(nameof(ExerciseDetailsPage), typeof(ExerciseDetailsPage));
         }

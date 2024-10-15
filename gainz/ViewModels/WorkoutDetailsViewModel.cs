@@ -60,7 +60,7 @@ namespace gainz.ViewModels
         private async void StartWorkout()
         {
             // Logic to start the workout
-            await Application.Current.MainPage.DisplayAlert("Workout Started", $"Starting {WorkoutName}!", "OK");
+            await Shell.Current.GoToAsync($"workoutinprogress?workoutId={WorkoutId}");
         }
 
         private async void DeleteWorkout()

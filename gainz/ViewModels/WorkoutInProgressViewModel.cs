@@ -1,0 +1,111 @@
+﻿using gainz.Models;
+using gainz.Services;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Timers;
+using System.Windows.Input;
+
+/*
+ * The ViewModel will handle the stopwatch, track sets and allow users to add new sets. 
+ * It will also manage the list of exercises in the workout and the volume lifted
+ */
+
+namespace gainz.ViewModels
+{
+    public class WorkoutInProgressViewModel : INotifyPropertyChanged
+    {
+        public string WorkoutName { get; set; }
+        public string ElapsedTime { get; set; }
+        public string TotalWeight { get; set; }
+        public string TotalSets { get; set; }
+        public ObservableCollection<ExerciseInProgress> Exercises { get; set; }
+
+        // Already importing system.timers so not sure why I need to be doing this
+        private System.Timers.Timer _timer;
+        private DateTime _startTime;
+
+        public ICommand ExitWorkoutCommand { get; set; }
+        public ICommand FinishWorkoutCommand { get; set; }
+
+        public WorkoutInProgressViewModel(int workoutId)
+        {
+            // Load workout data from the database
+            var workout = DatabaseService.GetWorkoutWithExercises(workoutId);
+            WorkoutName = workout.Name;
+            Exercises = new ObservableCollection<ExerciseInProgress>(
+                workout.Exercises.Select(e => new ExerciseInProgress(e))
+            );
+
+            // Initialize commands
+            ExitWorkoutCommand = new Command(ExitWorkout);
+            FinishWorkoutCommand = new Command(FinishWorkout);
+
+            // Start the timer
+            _startTime = DateTime.Now;
+            _timer = new System.Timers.Timer(1000);
+            _timer.Elapsed += OnTimedEvent;
+            _timer.Start();
+        }
+
+        // Update elapsed time every second
+        private void OnTimedEvent(object sender, ElapsedEventArgs e)
+        {
+            TimeSpan elapsed = DateTime.Now - _startTime;
+            ElapsedTime = $"{elapsed.Minutes:D2}:{elapsed.Seconds:D2}";
+            OnPropertyChanged(nameof(ElapsedTime));
+        }
+
+        private void ExitWorkout()
+        {
+            // Handle exit logic (maybe a confirmation dialog)
+            Application.Current.MainPage.Navigation.PopAsync();
+        }
+
+        private void FinishWorkout()
+        {
+            // Save workout details and finish
+            _timer.Stop();
+            // Additional save logic can go here
+            Application.Current.MainPage.Navigation.PopAsync();
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    public class ExerciseInProgress : INotifyPropertyChanged
+    {
+        public string Name { get; set; }
+        public ObservableCollection<Set> Sets { get; set; }
+        public ICommand AddSetCommand { get; set; }
+        public bool IsExpanded { get; set; }
+
+        public ExerciseInProgress(Exercise exercise)
+        {
+            Name = exercise.Name;
+            Sets = new ObservableCollection<Set>();
+            AddSetCommand = new Command(AddSet);
+        }
+
+        private void AddSet()
+        {
+            // Logic to add a set
+            Sets.Add(new Set { Weight = 0, Reps = 0 });  // Placeholder for user input
+            OnPropertyChanged(nameof(Sets));
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+}
