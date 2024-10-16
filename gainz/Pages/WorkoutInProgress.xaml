@@ -1,19 +1,40 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:gainz.ViewModels"
              x:Class="gainz.Pages.WorkoutInProgress"
              Title="{Binding WorkoutName}">
 
     <Grid Padding="20" RowSpacing="20">
-        <!-- Workout Title -->
-        <Label Text="{Binding WorkoutName}" 
-               FontSize="Large" 
-               FontAttributes="Bold"
-               HorizontalOptions="Center" 
-               Grid.Row="0" />
 
-        <!-- Timer, Volume, Sets Labels -->
-        <Grid Grid.Row="1" ColumnSpacing="10" Padding="10">
+        <!-- Exit and Finish Buttons at the top -->
+        <Grid Grid.Row="0" ColumnSpacing="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Button Text="Exit" 
+                    Command="{Binding ExitWorkoutCommand}" 
+                    BackgroundColor="Gray" 
+                    TextColor="White"
+                    HeightRequest="50"
+                    HorizontalOptions="FillAndExpand"
+                    VerticalOptions="Start"
+                    Grid.Column="0" />
+
+            <Button Text="Finish" 
+                    Command="{Binding FinishWorkoutCommand}" 
+                    BackgroundColor="Green" 
+                    TextColor="White"
+                    HeightRequest="50"
+                    HorizontalOptions="FillAndExpand"
+                    VerticalOptions="Start"
+                    Grid.Column="1" />
+        </Grid>
+
+        <!-- Timer, Volume, Sets Labels directly below buttons -->
+        <Grid Grid.Row="1" ColumnSpacing="10" Padding="10, -320, 0, 0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
@@ -26,15 +47,15 @@
                    VerticalOptions="Center"
                    Grid.Column="0" />
 
-            <!-- Replace 350KG with {Binding TotalWeight} -->
-            <Label Text="350 KG" 
+            <!-- Replace text with {Binding TotalWeight}-->
+            <Label Text="{Binding TotalWeight}" 
                    FontSize="Medium" 
                    HorizontalOptions="Center"
                    VerticalOptions="Center"
                    Grid.Column="1" />
 
-            <!-- Replace TotalSets with {Binding TotalSets} -->
-            <Label Text="10 SETS" 
+            <!-- Replace text with {Binding TotalSets}-->
+            <Label Text="{Binding TotalSets}" 
                    FontSize="Medium" 
                    HorizontalOptions="Center"
                    VerticalOptions="Center"
@@ -42,67 +63,73 @@
         </Grid>
 
         <!-- Divider Line -->
-        <BoxView Grid.Row="2" HeightRequest="1" Color="LightGray" Margin="0,10" />
+        <BoxView Grid.Row="2" HeightRequest="1" Color="LightGray" Margin="0,-255,0,0" />
 
-        <!-- Exit and Finish Buttons -->
-        <Grid Grid.Row="3" ColumnSpacing="10" Padding="0,20,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <Button Text="Exit" 
-                    Command="{Binding ExitWorkoutCommand}" 
-                    BackgroundColor="Gray" 
-                    TextColor="White"
-                    HeightRequest="50"
-                    HorizontalOptions="FillAndExpand"
-                    VerticalOptions="End"
-                    Grid.Column="0" />
-
-            <Button Text="Finish" 
-                    Command="{Binding FinishWorkoutCommand}" 
-                    BackgroundColor="Green" 
-                    TextColor="White"
-                    HeightRequest="50"
-                    HorizontalOptions="FillAndExpand"
-                    VerticalOptions="End"
-                    Grid.Column="1" />
-        </Grid>
-
-        <!-- Exercise List -->
-        <CollectionView Grid.Row="4" ItemsSource="{Binding Exercises}" Margin="0,20,0,0">
+        <!-- Scrollable Exercises List -->
+        <CollectionView Grid.Row="3" ItemsSource="{Binding Exercises}" Margin="0,140,0,0">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <StackLayout Padding="10">
-                        <!-- Exercise Header (Dropdown) -->
-                        <StackLayout Orientation="Horizontal">
-                            <Label Text="{Binding Name}" FontSize="Medium" HorizontalOptions="StartAndExpand" />
-                            <Image Source="dropdown_icon.png" HorizontalOptions="End" />
-                        </StackLayout>
+                    <Frame BorderColor="Gray" CornerRadius="5" Padding="0" Margin="0,10,0,0">
+                        <StackLayout Padding="10">
+                            <!-- Exercise Header (Dropdown) -->
+                            <StackLayout Orientation="Horizontal">
+                                <!-- Image of the Exercise -->
+                                <Image Source="{Binding ImageUrl}" WidthRequest="40" HeightRequest="40" 
+                                   HorizontalOptions="Start" VerticalOptions="Center" Margin="10,0"/>
 
-                        <!-- Sets Info (Dropdown Content) -->
-                        <StackLayout Padding="10" BackgroundColor="LightGray" IsVisible="{Binding IsExpanded}">
-                            <CollectionView ItemsSource="{Binding Sets}">
-                                <CollectionView.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackLayout Orientation="Horizontal" Padding="5">
-                                            <Label Text="{Binding Weight, StringFormat='{0} KG'}" 
-                                                   FontSize="Small" 
-                                                   HorizontalOptions="StartAndExpand" />
-                                            <Label Text=" * " FontSize="Small" />
-                                            <Label Text="{Binding Reps, StringFormat='{0} Reps'}" 
-                                                   FontSize="Small" 
-                                                   HorizontalOptions="StartAndExpand" />
-                                        </StackLayout>
-                                    </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
-                            <Button Text="+ Add Set" 
+
+                                <Label Text="{Binding Name}" FontSize="Medium" HorizontalOptions="StartAndExpand" />
+                                <Image Source="dropdown_arrow.png" WidthRequest="20" HeightRequest="20" 
+                                   HorizontalOptions="End" VerticalOptions="Center" />
+                                
+                                <StackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ToggleDropdownCommand}" />
+                                </StackLayout.GestureRecognizers>
+                            </StackLayout>
+
+                            <!-- Sets Info (Dropdown Content) -->
+                            <StackLayout Padding="10" BackgroundColor="White" IsVisible="{Binding IsExpanded}">
+                                <CollectionView ItemsSource="{Binding Sets}">
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate>
+                                            <SwipeView>
+                                                <SwipeView.RightItems>
+                                                    <SwipeItems>
+                                                        <SwipeItem Text="Delete"
+                                                               BackgroundColor="Red"
+                                                               Command="{Binding Source={RelativeSource AncestorType={x:Type local:ExerciseInProgressViewModel}}, Path=DeleteSetCommand}"
+                                                               CommandParameter="{Binding .}" />
+                                                    </SwipeItems>
+                                                </SwipeView.RightItems>
+                                                <StackLayout BackgroundColor="White" Orientation="Horizontal" Padding="5">
+                                                    <Label Text="Weight: " FontSize="Small" />
+                                                    <!-- Entry for KG (Weight) -->
+                                                    <Entry Text="{Binding Weight, Mode=TwoWay}" 
+                                                       Keyboard="Numeric" 
+                                                       Placeholder="KG" 
+                                                       FontSize="Small"
+                                                       WidthRequest="70"
+                                                       HorizontalOptions="StartAndExpand" />
+
+                                                    <Label Text="Reps: " FontSize="Small" />
+                                                    <!-- Entry for Reps -->
+                                                    <Entry Text="{Binding Reps, Mode=TwoWay}" 
+                                                       Keyboard="Numeric" 
+                                                       Placeholder="Reps"
+                                                       FontSize="Small"
+                                                       WidthRequest="70"
+                                                       HorizontalOptions="EndAndExpand" />
+                                                </StackLayout>
+                                            </SwipeView>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                                <Button Text="+ Add Set" 
                                     Command="{Binding AddSetCommand}" 
                                     HorizontalOptions="Center" />
+                            </StackLayout>
                         </StackLayout>
-                    </StackLayout>
+                    </Frame>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>

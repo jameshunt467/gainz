@@ -23,7 +23,7 @@ namespace gainz.ViewModels
         public string ElapsedTime { get; set; }
         public string TotalWeight { get; set; }
         public string TotalSets { get; set; }
-        public ObservableCollection<ExerciseInProgress> Exercises { get; set; }
+        public ObservableCollection<ExerciseInProgressViewModel> Exercises { get; set; }
 
         // Already importing system.timers so not sure why I need to be doing this
         private System.Timers.Timer _timer;
@@ -37,19 +37,43 @@ namespace gainz.ViewModels
             // Load workout data from the database
             var workout = DatabaseService.GetWorkoutWithExercises(workoutId);
             WorkoutName = workout.Name;
-            Exercises = new ObservableCollection<ExerciseInProgress>(
-                workout.Exercises.Select(e => new ExerciseInProgress(e))
+            Exercises = new ObservableCollection<ExerciseInProgressViewModel>(
+                workout.Exercises.Select(e => new ExerciseInProgressViewModel(e))
             );
 
             // Initialize commands
             ExitWorkoutCommand = new Command(ExitWorkout);
             FinishWorkoutCommand = new Command(FinishWorkout);
 
+            // Subscribe to changes in each exercise
+            foreach (var exercise in Exercises)
+            {
+                exercise.OnSetChanged += RecalculateTotals;
+            }
+
             // Start the timer
             _startTime = DateTime.Now;
             _timer = new System.Timers.Timer(1000);
             _timer.Elapsed += OnTimedEvent;
             _timer.Start();
+        }
+
+        private void RecalculateTotals()
+        {
+            int totalWeight = 0;
+            int totalSets = 0;
+
+            foreach (var exercise in Exercises)
+            {
+                totalWeight += exercise.Sets.Sum(set => set.Weight * set.Reps);
+                totalSets += exercise.Sets.Count;
+            }
+
+            TotalWeight = $"{totalWeight} KG";
+            TotalSets = $"{totalSets} Sets";
+
+            OnPropertyChanged(nameof(TotalWeight));
+            OnPropertyChanged(nameof(TotalSets));
         }
 
         // Update elapsed time every second
@@ -60,46 +84,26 @@ namespace gainz.ViewModels
             OnPropertyChanged(nameof(ElapsedTime));
         }
 
-        private void ExitWorkout()
+        private async void ExitWorkout()
         {
-            // Handle exit logic (maybe a confirmation dialog)
-            Application.Current.MainPage.Navigation.PopAsync();
+            bool answer = await Application.Current.MainPage.DisplayAlert("Exit Workout", "Are you sure you want to exit without saving?", "Yes", "No");
+            if (answer)
+            {
+                // Exit without saving
+                Application.Current.MainPage.Navigation.PopAsync();
+            }
         }
 
-        private void FinishWorkout()
+        private async void FinishWorkout()
         {
-            // Save workout details and finish
-            _timer.Stop();
-            // Additional save logic can go here
-            Application.Current.MainPage.Navigation.PopAsync();
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
-
-    public class ExerciseInProgress : INotifyPropertyChanged
-    {
-        public string Name { get; set; }
-        public ObservableCollection<Set> Sets { get; set; }
-        public ICommand AddSetCommand { get; set; }
-        public bool IsExpanded { get; set; }
-
-        public ExerciseInProgress(Exercise exercise)
-        {
-            Name = exercise.Name;
-            Sets = new ObservableCollection<Set>();
-            AddSetCommand = new Command(AddSet);
-        }
-
-        private void AddSet()
-        {
-            // Logic to add a set
-            Sets.Add(new Set { Weight = 0, Reps = 0 });  // Placeholder for user input
-            OnPropertyChanged(nameof(Sets));
+            bool answer = await Application.Current.MainPage.DisplayAlert("Finish Workout", "Are you sure you want to finish this workout?", "Yes", "No");
+            if (answer)
+            {
+                // Save workout details and finish
+                _timer.Stop();
+                //SaveWorkoutDetails();
+                Application.Current.MainPage.Navigation.PopAsync();
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -108,4 +112,32 @@ namespace gainz.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
+
+    //public class ExerciseInProgress : INotifyPropertyChanged
+    //{
+    //    public string Name { get; set; }
+    //    public ObservableCollection<Set> Sets { get; set; }
+    //    public ICommand AddSetCommand { get; set; }
+    //    public bool IsExpanded { get; set; }
+
+    //    public ExerciseInProgress(Exercise exercise)
+    //    {
+    //        Name = exercise.Name;
+    //        Sets = new ObservableCollection<Set>();
+    //        AddSetCommand = new Command(AddSet);
+    //    }
+
+    //    private void AddSet()
+    //    {
+    //        // Logic to add a set
+    //        Sets.Add(new Set { Weight = 0, Reps = 0 });  // Placeholder for user input
+    //        OnPropertyChanged(nameof(Sets));
+    //    }
+
+    //    public event PropertyChangedEventHandler PropertyChanged;
+    //    protected virtual void OnPropertyChanged(string propertyName)
+    //    {
+    //        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    //    }
+    //}
 }
