@@ -9,6 +9,8 @@ using SQLite;
 using Microsoft.Maui.Storage;
 using gainz.Models;
 using gainz.JoinTable;
+using System.Diagnostics;
+using static gainz.App;
 
 namespace gainz.Services
 {
@@ -43,12 +45,70 @@ namespace gainz.Services
                     _connection.CreateTable<Workout>();
                     _connection.CreateTable<ExerciseWorkout>();
 
+                    // Saved workout models
+                    _connection.CreateTable<CompletedSet>();
+                    _connection.CreateTable<CompletedWorkout>();
+
                     // Enable foreign key support (if supported by the SQLite version)
                     _connection.Execute("PRAGMA foreign_keys = ON;");
                 }
                 return _connection;
             }
         }
+
+        // start of WORKOUT METHODS
+
+        // Save the completed workout, along with its exercises and sets
+        // The CompletedWorkout model now has Sets instead of Exercises
+        // the foreign keys are linked via CompletedSet.ExerciseId
+        public static void SaveCompletedWorkout(CompletedWorkout workout)
+        {
+            // Insert the workout
+            _connection.Insert(workout);
+
+            // Insert each set for the workout
+            foreach (var set in workout.Sets)
+            {
+                set.CompletedWorkoutId = workout.Id;  // Set the foreign key for the workout
+                                                      // No need for set.CompletedExerciseId anymore we use set.ExerciseId instead
+                _connection.Insert(set);
+            }
+
+            Debug.WriteLine($"[{Constants.LogTag}] Saved workout with ID: {workout.Id}");
+        }
+
+
+        public static void SaveCompletedSet(CompletedSet set)
+        {
+            _connection.Insert(set);  // Saves and generates the set Id
+            Debug.WriteLine($"[{Constants.LogTag}] Saved set with ID: {set.Id}");
+        }
+
+        // Load all completed workouts (for history tab)
+        public static List<CompletedWorkout> GetCompletedWorkouts()
+        {
+            var workouts = _connection.Table<CompletedWorkout>().ToList();
+
+            foreach (var workout in workouts)
+            {
+                workout.Sets = _connection.Table<CompletedSet>()
+                                        .Where(set => set.CompletedWorkoutId == workout.Id)
+                                        .ToList();
+
+                // Optionally, fetch the associated Exercise for each set
+                foreach (var set in workout.Sets)
+                {
+                    set.Exercise = _connection.Table<Exercise>()
+                                            .FirstOrDefault(ex => ex.Id == set.ExerciseId);
+                }
+            }
+
+            return workouts;
+        }
+
+        // end of WORKOUT METHODS
+
+
 
         // start of CATEGORY METHODS
 
@@ -81,6 +141,8 @@ namespace gainz.Services
 
         // end of CATEGORY METHODS
 
+
+
         // start of ExerciseWorkout
 
         public static Workout GetWorkoutWithExercises(int workoutId)
@@ -107,6 +169,9 @@ namespace gainz.Services
         }
 
         // end of ExerciseWorkout
+
+
+
 
         // start of EXERCISES
 

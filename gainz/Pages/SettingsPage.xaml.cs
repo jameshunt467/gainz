@@ -2,6 +2,8 @@ using gainz.JoinTable;
 using gainz.Models;
 using gainz.Services;
 using Microsoft.Maui.Controls;
+using System.Diagnostics;
+using static gainz.App;
 
 namespace gainz.Pages;
 
@@ -29,6 +31,8 @@ public partial class SettingsPage : ContentPage
             db.DeleteAll<Category>(); // Clear all categories from the database
             db.DeleteAll<Workout>();  // Clear all workouts from the database
             db.DeleteAll<ExerciseWorkout>(); // Clear all joins
+            db.DeleteAll<CompletedWorkout>(); // Clear all completed workouts
+            db.DeleteAll<CompletedSet>(); // Clear all completed sets
 
             await DisplayAlert("Database Cleared", "All data has been removed from the database.", "OK");
         }
@@ -66,13 +70,48 @@ public partial class SettingsPage : ContentPage
         int chestWorkoutId = chestWorkout.Id;
         int legsWorkoutId = legsWorkout.Id;
 
+        // Retrieve the IDs of the Exercises
+        int pushUpId = db.Table<Exercise>().First(e => e.Name == "Push Up").Id;
+        int benchPressId = db.Table<Exercise>().First(e => e.Name == "Bench Press").Id;
+        int squatId = db.Table<Exercise>().First(e => e.Name == "Squat").Id;
+        int legPressId = db.Table<Exercise>().First(e => e.Name == "Leg Press").Id;
+
         // Add exercises to the workouts
-        db.Insert(new ExerciseWorkout { WorkoutId = chestWorkoutId, ExerciseId = db.Table<Exercise>().First(e => e.Name == "Push Up").Id });
-        db.Insert(new ExerciseWorkout { WorkoutId = chestWorkoutId, ExerciseId = db.Table<Exercise>().First(e => e.Name == "Bench Press").Id });
-        db.Insert(new ExerciseWorkout { WorkoutId = legsWorkoutId, ExerciseId = db.Table<Exercise>().First(e => e.Name == "Squat").Id });
-        db.Insert(new ExerciseWorkout { WorkoutId = legsWorkoutId, ExerciseId = db.Table<Exercise>().First(e => e.Name == "Leg Press").Id });
+        db.Insert(new ExerciseWorkout { WorkoutId = chestWorkoutId, ExerciseId = pushUpId });
+        db.Insert(new ExerciseWorkout { WorkoutId = chestWorkoutId, ExerciseId = benchPressId });
+        db.Insert(new ExerciseWorkout { WorkoutId = legsWorkoutId, ExerciseId = squatId });
+        db.Insert(new ExerciseWorkout { WorkoutId = legsWorkoutId, ExerciseId = legPressId });
+
+        AddSampleCompletedWorkout(pushUpId, benchPressId, squatId, legPressId);
 
         await DisplayAlert("Sample Data Added", "Sample exercises and workouts have been added to the database.", "OK");
     }
 
+    private void AddSampleCompletedWorkout(int pushUpId, int benchPressId, int squatId, int legPressId)
+    {
+        // Create a sample completed workout
+        var completedWorkout = new CompletedWorkout
+        {
+            WorkoutName = "Sample Workout",
+            WorkoutDate = DateTime.Now,
+            TotalVolume = 4000,
+            TotalSets = 8,
+            Sets = new List<CompletedSet>()
+        };
+
+        // Save the workout to the database
+        DatabaseService.SaveCompletedWorkout(completedWorkout);
+
+        // Add sets for each exercise in the workout
+        var pushUpSet = new CompletedSet { Weight = 0, Reps = 20, CompletedWorkoutId = completedWorkout.Id, ExerciseId = pushUpId };
+        var benchPressSet = new CompletedSet { Weight = 100, Reps = 10, CompletedWorkoutId = completedWorkout.Id, ExerciseId = benchPressId };
+        var squatSet = new CompletedSet { Weight = 150, Reps = 12, CompletedWorkoutId = completedWorkout.Id, ExerciseId = squatId };
+        var legPressSet = new CompletedSet { Weight = 200, Reps = 8, CompletedWorkoutId = completedWorkout.Id, ExerciseId = legPressId };
+
+        // Save the sets to the database
+        DatabaseService.SaveCompletedSet(pushUpSet);
+        DatabaseService.SaveCompletedSet(benchPressSet);
+        DatabaseService.SaveCompletedSet(squatSet);
+        DatabaseService.SaveCompletedSet(legPressSet);
+    }
 }

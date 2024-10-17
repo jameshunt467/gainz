@@ -4,11 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Input;
+using static gainz.App;
 
 /*
  * The ViewModel will handle the stopwatch, track sets and allow users to add new sets. 
@@ -101,9 +103,73 @@ namespace gainz.ViewModels
             {
                 // Save workout details and finish
                 _timer.Stop();
-                //SaveWorkoutDetails();
+                SaveWorkoutDetails();
                 Application.Current.MainPage.Navigation.PopAsync();
             }
+        }
+
+        private void SaveWorkoutDetails()
+        {
+            var completedWorkout = new CompletedWorkout
+            {
+                WorkoutName = this.WorkoutName,
+                WorkoutDate = DateTime.Now,
+                TotalVolume = CalculateTotalVolume(),
+                TotalSets = CalculateTotalSets(),
+                Sets = new List<CompletedSet>()
+            };
+
+            // Save the workout first
+            DatabaseService.SaveCompletedWorkout(completedWorkout);
+
+            foreach (var exerciseViewModel in Exercises)
+            {
+                foreach (var set in exerciseViewModel.Sets)
+                {
+                    var completedSet = new CompletedSet
+                    {
+                        Weight = set.Weight,
+                        Reps = set.Reps,
+                        CompletedWorkoutId = completedWorkout.Id,
+                        ExerciseId = exerciseViewModel.Id  // Link to the existing Exercise model
+                    };
+
+                    // Save the set
+                    DatabaseService.SaveCompletedSet(completedSet);
+
+                    completedWorkout.Sets.Add(completedSet);
+                }
+            }
+        }
+
+
+        // Method to calculate the total volume (weight * reps for all exercises)
+        private int CalculateTotalVolume()
+        {
+            int totalVolume = 0;
+
+            foreach (var exercise in Exercises)
+            {
+                foreach (var set in exercise.Sets)
+                {
+                    totalVolume += set.Weight * set.Reps;
+                }
+            }
+
+            return totalVolume;
+        }
+
+        // Method to calculate the total number of sets across all exercises
+        private int CalculateTotalSets()
+        {
+            int totalSets = 0;
+
+            foreach (var exercise in Exercises)
+            {
+                totalSets += exercise.Sets.Count;
+            }
+
+            return totalSets;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

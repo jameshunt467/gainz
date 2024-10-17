@@ -13,6 +13,7 @@ namespace gainz.ViewModels
 {
     public class ExerciseInProgressViewModel : INotifyPropertyChanged
     {
+        public int Id { get; set; }  // Expose the Exercise ID
         public string Name { get; set; }
         public string ImageUrl { get; set; }  // Image property for the exercise
         public ObservableCollection<Set> Sets { get; set; }
@@ -35,6 +36,7 @@ namespace gainz.ViewModels
 
         public ExerciseInProgressViewModel(Exercise exercise)
         {
+            Id = exercise.Id;  // Set the Exercise ID
             Name = exercise.Name;
             ImageUrl = exercise.ImageUrl;
             Sets = new ObservableCollection<Set>();
