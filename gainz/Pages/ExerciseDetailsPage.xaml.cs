@@ -13,6 +13,10 @@ using Microsoft.Maui.Storage;
 using gainz.ViewModels;
 using gainz.Services;
 using System.Diagnostics;
+using Microsoft.VisualBasic;
+using Constants = gainz.App.Constants;
+using FileSystem = Microsoft.Maui.Storage.FileSystem;
+//using AndroidX.Lifecycle;
 
 
 namespace gainz.Pages;
@@ -23,10 +27,14 @@ public partial class ExerciseDetailsPage : ContentPage
     //private ObservableCollection<Exercise> _exercises;  // This is so that we can delete the exercise from the BankPage list
     private Exercise _selectedExercise;
     public  int ExerciseId { get; set; }
+    private ExerciseDetailsViewModel viewModel;
 
     public ExerciseDetailsPage()
     {
         InitializeComponent();
+        // This is happening in OnAppearing
+        //viewModel = new ExerciseDetailsViewModel(ExerciseId);
+        //BindingContext = viewModel;
     }
 
     protected override void OnAppearing()
@@ -45,6 +53,37 @@ public partial class ExerciseDetailsPage : ContentPage
             Debug.WriteLine("OnAppearing: Invalid ExerciseId received.");
         }
     }
+
+    private void OnIncreaseWidthClicked(object sender, EventArgs e)
+    {
+        var viewModel = BindingContext as ExerciseDetailsViewModel;
+        viewModel?.IncreaseWidth();
+    }
+
+    private void OnDecreaseWidthClicked(object sender, EventArgs e)
+    {
+        var viewModel = BindingContext as ExerciseDetailsViewModel;
+        viewModel?.DecreaseWidth();
+    }
+
+    private void OnVolumeCheckedChanged(object sender, CheckedChangedEventArgs e)
+    {
+        if (e.Value) // If "Total Volume" is selected
+        {
+            var viewModel = BindingContext as ExerciseDetailsViewModel;
+            viewModel?.UpdateChart(isVolume: true); // Update chart to display total volume
+        }
+    }
+
+    private void OnWeightCheckedChanged(object sender, CheckedChangedEventArgs e)
+    {
+        if (e.Value) // If "Heaviest Weight" is selected
+        {
+            var viewModel = BindingContext as ExerciseDetailsViewModel;
+            viewModel?.UpdateChart(isVolume: false); // Update chart to display highest weight
+        }
+    }
+
 
     private void OnNewCategoryTextChanged(object sender, TextChangedEventArgs e)
     {

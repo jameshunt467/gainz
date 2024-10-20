@@ -81,7 +81,6 @@ namespace gainz.Services
         public static void SaveCompletedSet(CompletedSet set)
         {
             _connection.Insert(set);  // Saves and generates the set Id
-            Debug.WriteLine($"[{Constants.LogTag}] Saved set with ID: {set.Id}");
         }
 
         // Load all completed workouts (for history tab)
@@ -105,6 +104,17 @@ namespace gainz.Services
 
             return workouts;
         }
+
+        public static List<CompletedSet> GetSetsByWorkoutId(int workoutId)
+        {
+            return _connection.Table<CompletedSet>().Where(set => set.CompletedWorkoutId == workoutId).ToList();
+        }
+
+        public static void UpdateCompletedWorkout(CompletedWorkout workout)
+        {
+            _connection.Update(workout);
+        }
+
 
         // end of WORKOUT METHODS
 

@@ -6,6 +6,7 @@ using Microsoft.Maui;
 using Microsoft.Maui.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using SQLitePCL;
+using SkiaSharp.Views.Maui.Controls.Hosting;
 
 namespace gainz
 {
@@ -18,7 +19,8 @@ namespace gainz
                 .UseMauiApp<App>()
                 // Initialize the .NET MAUI Community Toolkit by adding the below line of code
                 .UseMauiCommunityToolkit()
-                // After initializing the .NET MAUI Community Toolkit, optionally add additional fonts
+                .UseSkiaSharp()
+                                // After initializing the .NET MAUI Community Toolkit, optionally add additional fonts
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

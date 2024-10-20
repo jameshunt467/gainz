@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:microcharts="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
              x:Class="gainz.Pages.ExerciseDetailsPage"
              Title="{Binding Name}">
 
@@ -35,7 +36,39 @@
 
             <!-- Graph Placeholder (for future implementation) -->
             <Label Text="Graph (Progress Tracker)" FontSize="18" FontAttributes="Bold"/>
-            <BoxView HeightRequest="200" BackgroundColor="LightGray"/>
+            <!-- <BoxView HeightRequest="200" BackgroundColor="LightGray"/> -->
+            <StackLayout Padding="10">
+                <!-- Radio Buttons to Select Data Type -->
+                <StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+                    <RadioButton x:Name="VolumeRadioButton"
+                    Content="Total Volume"
+                    GroupName="ChartType"
+                    IsChecked="True"
+                    CheckedChanged="OnVolumeCheckedChanged" />
+
+                    <RadioButton x:Name="WeightRadioButton"
+                    Content="Heaviest Weight"
+                    GroupName="ChartType"
+                    CheckedChanged="OnWeightCheckedChanged" />
+                </StackLayout>
+
+                <!-- Chart Display -->
+                <ScrollView x:Name="GraphScrollView" Orientation="Horizontal">
+                    <microcharts:ChartView 
+                        x:Name="ExerciseChart" 
+                        Chart="{Binding Chart}" 
+                        HeightRequest="250" 
+                        WidthRequest="{Binding ChartWidth}"
+                        HorizontalOptions="FillAndExpand" 
+                        BackgroundColor="LightGray"/>
+                </ScrollView>
+
+                <!-- Plus and Minus buttons to adjust chart width -->
+                <StackLayout Orientation="Horizontal" HorizontalOptions="Center" Spacing="10" Margin="0,10,0,0">
+                    <Button ImageSource="zoom_out_icon.png" HeightRequest="50" BackgroundColor="White" Clicked="OnDecreaseWidthClicked" />
+                    <Button ImageSource="zoom_in_icon.png" HeightRequest="50" BackgroundColor="White" Clicked="OnIncreaseWidthClicked" />
+                </StackLayout>
+            </StackLayout>
             <!-- Placeholder for Graph -->
 
             <!-- Delete Exercise Button -->

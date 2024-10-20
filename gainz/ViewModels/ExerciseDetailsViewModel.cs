@@ -8,12 +8,17 @@ using System.Text;
 using System.Threading.Tasks;
 
 using System.Windows.Input;
+using AndroidX.Emoji2.Text.FlatBuffer;
 using gainz.Models;
 
 
 //using gainz.Models;
+//using static gainz.App;
 using gainz.Services;
+using Microcharts;
 using Microsoft.Maui.Controls;
+using SkiaSharp;
+using Constants = gainz.App.Constants;
 
 namespace gainz.ViewModels
 {
@@ -25,6 +30,38 @@ namespace gainz.ViewModels
         private string _selectedCategory;
         private ObservableCollection<string> _categories;
 
+        // For graphing functionality
+        public bool IsVolumeSelected { get; set; }          // TODO: Delete this (we're not using this binding)
+        public bool IsHighestWeightSelected { get; set; }   // TODO: Delete this (we're not using this binding)
+        public ObservableCollection<CompletedWorkout> Workouts { get; set; }
+        //public Chart Chart { get; private set; }
+        private Chart _chart;
+        private double _chartWidth = 1000; // Default width
+        private const double WidthStep = 250;
+        private const double MinWidth = 210; // minimum width
+        private const double MaxWidth = 1000; // maximum width
+        public double ChartWidth
+        {
+            get => _chartWidth;
+            set
+            {
+                if (_chartWidth != value)
+                {
+                    _chartWidth = value;
+                    OnPropertyChanged(nameof(ChartWidth));
+                }
+            }
+        }
+
+        public Chart Chart
+        {
+            get => _chart;
+            set
+            {
+                _chart = value;
+                OnPropertyChanged(nameof(Chart));
+            }
+        }
         public ObservableCollection<string> Categories
         {
             get => _categories;
@@ -137,6 +174,7 @@ namespace gainz.ViewModels
             //var exercisesFromDb = DatabaseService.GetAllExercises();
             //_exercises = new ObservableCollection<Exercise>(exercisesFromDb);
 
+            Debug.WriteLine($"[{Constants.LogTag}] ExerciseDetailsViewModel initializing with id {id}");
             _selectedExercise = DatabaseService.GetExerciseWithId(id);
 
             LoadCategories(); // Load categories for autofill
@@ -145,6 +183,133 @@ namespace gainz.ViewModels
             SaveExerciseCommand = new Command(OnSaveExercise);
             // Initialize the command for deleting an exercise
             DeleteExerciseCommand = new Command(OnDeleteExercise);
+
+            // Graphing functionality initialization
+            IsVolumeSelected = true; // Default to Volume
+            IsHighestWeightSelected = false;
+
+            // Update Chart when selection changes
+            UpdateChart(IsVolumeSelected);
+        }
+
+
+        public void DecreaseWidth()
+        {
+            //Debug.WriteLine($"[{Constants.LogTag}] ChartWidth: {ChartWidth}");
+            if (ChartWidth - WidthStep >= MinWidth)
+            {
+                ChartWidth -= WidthStep;
+            }
+        }
+
+        public void IncreaseWidth()
+        {
+            //Debug.WriteLine($"[{Constants.LogTag}] ChartWidth: {ChartWidth}");
+            if (ChartWidth + WidthStep <= MaxWidth)
+            {
+                ChartWidth += WidthStep;
+            }
+        }
+
+        public void UpdateChart(bool isVolume)
+        {
+            // Pull all completed workouts again 
+            Workouts = new ObservableCollection<CompletedWorkout>(DatabaseService.GetCompletedWorkouts());
+            Debug.WriteLine($"[{Constants.LogTag}] Updating chart ..");
+            // Logic to switch between Volume and Highest Weight
+            Chart = isVolume ? CreateVolumeChart() : CreateHighestWeightChart();
+
+            String selectionString = isVolume ? "Volume Chart" : "Highest Weight Chart";
+            Debug.WriteLine($"[{Constants.LogTag}] Chart updated.  Drawing {selectionString}");
+
+            OnPropertyChanged(nameof(Chart));
+        }
+
+        private Chart CreateVolumeChart()
+        {
+            try
+            {
+                // Filter sets for the selected exercise and sum their volumes per workout
+                var entries = Workouts.Select(workout =>
+                {
+                    int exerciseVolume = workout.Sets
+                        .Where(set => set.ExerciseId == _selectedExercise.Id)
+                        .Sum(set => set.Weight * set.Reps);
+
+                    return new ChartEntry(exerciseVolume)
+                    {
+                        Label = workout.WorkoutDate.ToString("MMM dd"),
+                        ValueLabel = exerciseVolume.ToString(),
+                        Color = SKColors.Cyan
+                    };
+                }).ToArray();
+
+                Debug.WriteLine($"[{Constants.LogTag}] Number of VolumeChart data points: {entries.Length}");
+
+                return new LineChart
+                {
+                    Entries = entries,
+                    LineMode = LineMode.Straight,
+                    LineSize = 4,
+                    PointMode = PointMode.Circle,
+                    PointSize = 10,
+                    BackgroundColor = SKColors.White, // Explicitly set the background color
+                    LabelTextSize = 30, // Increase label text size for better readability
+                    LabelOrientation = Orientation.Horizontal, // Ensure x-axis labels are horizontal
+                    ValueLabelOrientation = Orientation.Horizontal, // Ensure value labels are horizontal
+                    // EnableYLabels = true, // Enable y-axis labels for clarity
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[{Constants.LogTag}] Error creating volume chart: {ex.Message}");
+                Application.Current.MainPage.DisplayAlert("Error", $"Failed to create volume chart: {ex.Message}", "OK");
+                return null;
+            }
+        }
+
+        private Chart CreateHighestWeightChart()
+        {
+            try
+            {
+                // Determine the heaviest set for the selected exercise per workout
+                var entries = Workouts.Select(workout =>
+                {
+                    int heaviestWeight = workout.Sets
+                        .Where(set => set.ExerciseId == _selectedExercise.Id)
+                        .OrderByDescending(set => set.Weight)
+                        .Select(set => set.Weight)
+                        .FirstOrDefault();
+
+                    return new ChartEntry(heaviestWeight)
+                    {
+                        Label = workout.WorkoutDate.ToString("MMM dd"),
+                        ValueLabel = heaviestWeight.ToString(),
+                        Color = SKColor.Parse("#FF6347")
+                    };
+                }).ToArray();
+
+                Debug.WriteLine($"Number of HighestWeight data points: {entries.Length}");
+                return new LineChart
+                {
+                    Entries = entries,
+                    LineMode = LineMode.Straight,
+                    LineSize = 4,
+                    PointMode = PointMode.Circle,
+                    PointSize = 10,
+                    BackgroundColor = SKColors.White, // Explicitly set the background color
+                    LabelTextSize = 30, // Increase label text size for better readability
+                    LabelOrientation = Orientation.Horizontal, // Ensure x-axis labels are horizontal
+                    ValueLabelOrientation = Orientation.Horizontal, // Ensure value labels are horizontal
+                    // EnableYLabels = true, // Enable y-axis labels for clarity
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[{Constants.LogTag}] Error creating highest weight chart: {ex.Message}");
+                Application.Current.MainPage.DisplayAlert("Error", $"Failed to create highest weight chart: {ex.Message}", "OK");
+                return null;
+            }
         }
 
         private void LoadCategories()

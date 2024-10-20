@@ -1,6 +1,8 @@
 //using AndroidX.Lifecycle;
 
 using gainz.ViewModels;
+using Microsoft.VisualBasic;
+using System.Diagnostics;
 
 namespace gainz.Pages;
 
@@ -42,6 +44,7 @@ public partial class BankPage : ContentPage
             // Navigate to the ExerciseDetailsPage and pass the selectedExercise
             try
             {
+                Debug.WriteLine($"[{gainz.App.Constants.LogTag}] Navigating to exercise with Id {selectedExercise.Id}");
                 await Shell.Current.GoToAsync("exercisedetails", new Dictionary<string, object>
                 {
                     { "exerciseId", selectedExercise.Id }
